@@ -1,3 +1,5 @@
+import { log2 } from "./models";
+
 export function HarmonicTone(base_freqs: any[], n_partials = 1, profile = 'exp') {
     //    """
     //     Creates a harmonic tone out of one or more base frequencies.
@@ -33,6 +35,18 @@ export function HarmonicTone(base_freqs: any[], n_partials = 1, profile = 'exp')
 
     return { freqs, amplitudes }
 }
+export function freq_to_pitch(freq: number[], base_freq = 440.0, steps_per_octave = 12) {
+    return freq.map((fr) => {
+        log2(fr / base_freq) * steps_per_octave;
+    });
+}
+
+export function pitch_to_freq(pitch: number[], base_freq: number = 440.0, steps_per_octave: number = 12) {
+    return pitch.map((pitch) => {
+        return Math.pow(2, ((pitch) / steps_per_octave)) * base_freq;
+    })
+}
+
 function tile(amp_profile: number[], times: number) {
     let result: number[][] = [];
     interpolate(times).map(v => {
@@ -47,7 +61,7 @@ function outer(arr1: number[], arr2: number[]): number[][] {
     for (let i = 0; i < arr1.length; i++) {
         let res: number[] = [];
         for (let j = 0; j < arr2.length; j++) {
-            res.push(arr1[1] * arr2[j]);
+            res.push(arr1[i] * arr2[j]);
         }
         result.push(res);
     }

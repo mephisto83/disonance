@@ -1,132 +1,151 @@
-// import numpy as np
+export interface DisonanceModel {
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number): number;
+}
 
-// __all__ = [
-//     'Sethares1993', 'Vassilakis2001', 'Cook2002', 'Cook2006', 'Cook2009',
-//     'model_by_name'
-// ]
+export interface TensionModel {
+    triad_tension(f_1: number, f_2: number, f_3: number, a_1: number, a_2: number, a_3: number): number;
+}
 
-// class Sethares1993:
-//     """
-//     Amplitude fall-off: exponential with base 0.88 starting from 1.0.
-//     """
-//     a = 3.5
-//     b = 5.75
-//     d_max = 0.24
-//     s_1 = 0.0207
-//     s_2 = 18.96
+export class Sethares1993 implements DisonanceModel {
+    a: number = 3.5;
+    b: number = 5.75;
+    d_max: number = .24;
+    s_1: number = .0207;
+    s_2: number = 18.96;
 
-//     def dissonance_pair(self, f_1, f_2, a_1, a_2):
-//         s = self.d_max / (self.s_1 * f_1 + self.s_2)
-//         x = s * (f_2 - f_1)
-//         spl = a_1 * a_2
-//         d = np.exp(-self.a * x) - np.exp(-self.b * x)
-//         return spl * d
+    constructor() { }
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number) {
+        let self = this;
+        let s = self.d_max / (self.s_1 * f_1 + self.s_2);
+        let x = s * (f_2 - f_1);
+        let spl = a_1 * a_2;
+        let d = Math.exp(-self.a * x) - Math.exp(-self.b * x);
+        return spl * d
+    }
+}
 
-// class Vassilakis2001:
-//     """
-//     Fixes compared to the paper:
-//     - the 0.5 term removed compared to the original formula
-//       since we counts pairs of partials only once, not twice
-//     """
-//     a = 3.5
-//     b = 5.75
-//     d_max = 0.24
-//     s_1 = 0.0207
-//     s_2 = 18.96
-//     spl_exponent = 0.1
-//     afd_exponent = 3.11
+export class Vassilakis2001 implements DisonanceModel {
+    //     """
+    //     Fixes compared to the paper:
+    //     - the 0.5 term removed compared to the original formula
+    //       since we counts pairs of partials only once, not twice
+    //     """
+    a: number = 3.5
+    b: number = 5.75
+    d_max: number = 0.24
+    s_1: number = 0.0207
+    s_2: number = 18.96
+    spl_exponent: number = 0.1
+    afd_exponent: number = 3.11
 
-//     def dissonance_pair(self, f_1, f_2, a_1, a_2):
-//         spl = a_1 * a_2
-//         af_degree = (2 * a_2) / (a_1 + a_2)
-//         s = self.d_max / (self.s_1 * f_1 + self.s_2)
-//         x = s * (f_2 - f_1)
-//         d = np.exp(-self.a * x) - np.exp(-self.b * x)
-//         return (spl ** self.spl_exponent) * (af_degree ** self.afd_exponent) * d
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number) {
+        let self = this;
+        let spl = a_1 * a_2
+        let af_degree = (2 * a_2) / (a_1 + a_2)
+        let s = self.d_max / (self.s_1 * f_1 + self.s_2)
+        let x = s * (f_2 - f_1)
+        let d = Math.exp(-self.a * x) - Math.exp(-self.b * x)
+        return Math.pow(spl, self.spl_exponent) * Math.pow(af_degree, self.afd_exponent) * d
+    }
 
-// class Cook2002:
-//     """
-//     Dissonance at semitone 1.0 normalized to 1.0.
+}
 
-//     Fixes compared to the paper:
-//     - `c` is defined exactly, not with limited precision
-//     - logarithm should be of base 2
-//     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
-//       interval
-//     """
-//     a = 1.2
-//     b = 4.0
-//     # c ~= 3.5350857058976985 (3.53 in the paper which is not precise)
-//     c = 1 / (np.exp(-a) - np.exp(-b))
+export class Cook2002 implements DisonanceModel {
+    //     """
+    //     Dissonance at semitone 1.0 normalized to 1.0.
 
-//     def dissonance_pair(self, f_1, f_2, a_1, a_2):
-//         # difference of tones in 12-TET semitone intervals
-//         x = 12 * np.log2(f_2 / f_1)
-//         return self.c * (np.exp(-self.a * x) - np.exp(-self.b * x))
+    //     Fixes compared to the paper:
+    //     - `c` is defined exactly, not with limited precision
+    //     - logarithm should be of base 2
+    //     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
+    //       interval
+    //     """
+    a: number = 1.2
+    b: number = 4.0
+    // # c ~= 3.5350857058976985 (3.53 in the paper which is not precise)
+    c: number = 1;
+    constructor() {
+        this.c = 1 / (Math.exp(-this.a) - Math.exp(-this.b))
+    }
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number) {
+        let self = this;
+        // # difference of tones in 12 - TET semitone intervals
+        let x = 12 * log2(f_2 / f_1)
+        return self.c * (Math.exp(-self.a * x) - Math.exp(-self.b * x))
+    }
+}
+export function log2(x: number) {
+    return Math.log(x) * Math.LOG2E;
+}
+export class Cook2006 implements DisonanceModel {
+    //     """
+    //     Maximum dissonance normalized to 1.0.
 
-// class Cook2006:
-//     """
-//     Maximum dissonance normalized to 1.0.
+    //     Fixes compared to the paper:
+    //     - there's one more minus sign when applying beta_1, beta_2
+    //     - logarithm should be of base 2
+    //     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
+    //       interval
+    //     - there should be bracket, not floor around the difference of exponentials
+    //       (probably a printing error)
+    //     """
+    beta_1: number = -0.8
+    beta_2: number = -1.6
+    beta_3: number = 4.0
+    gamma: number = 1.25
 
-//     Fixes compared to the paper:
-//     - there's one more minus sign when applying beta_1, beta_2
-//     - logarithm should be of base 2
-//     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
-//       interval
-//     - there should be bracket, not floor around the difference of exponentials
-//       (probably a printing error)
-//     """
-//     beta_1 = -0.8
-//     beta_2 = -1.6
-//     beta_3 = 4.0
-//     gamma = 1.25
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number) {
+        let self = this;
+        let spl = a_1 * a_2
+        //        # frequency ratio -> 12 - TET semitone interval
+        let x = 12 * log2(f_2 / f_1)
+        let x_to_gamma = x ** self.gamma
+        let d = Math.exp(self.beta_1 * x_to_gamma) - Math.exp(self.beta_2 * x_to_gamma)
+        return spl * self.beta_3 * d
+    }
+}
+export class Cook2009 implements DisonanceModel, TensionModel {
+    //     """
+    //     Maximum dissonance normalized to 1.0.
 
-//     def dissonance_pair(self, f_1, f_2, a_1, a_2):
-//         spl = a_1 * a_2
-//         # frequency ratio -> 12-TET semitone interval
-//         x = 12 * np.log2(f_2 / f_1)
-//         x_to_gamma = x ** self.gamma
-//         d = np.exp(self.beta_1 * x_to_gamma) - np.exp(self.beta_2 * x_to_gamma)
-//         return spl * self.beta_3 * d
+    //     Fixes compared to the paper:
+    //     - there's one more minus sign when applying beta_1, beta_2
+    //     - logarithm should be of base 2
+    //     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
+    //       interval
 
-// class Cook2009:
-//     """
-//     Maximum dissonance normalized to 1.0.
+    //     It also contains a model of tension of a triad.
+    //     """
+    beta_1: number = -0.8
+    beta_2: number = -1.6
+    beta_3: number = 4.0
+    alpha: number = 0.6
 
-//     Fixes compared to the paper:
-//     - there's one more minus sign when applying beta_1, beta_2
-//     - logarithm should be of base 2
-//     - log2(f_2 / f_1) needs to be multiplied by 12 to get the 12-TET semitone
-//       interval
+    dissonance_pair(f_1: number, f_2: number, a_1: number, a_2: number) {
+        let self = this;
+        let spl: number = a_1 * a_2
+        // # frequency ratio -> 12-TET semitone interval
+        let x: number = 12 * log2(f_2 / f_1)
+        let d: number = Math.exp(self.beta_1 * x) - Math.exp(self.beta_2 * x)
+        return spl * self.beta_3 * d
+    }
+    triad_tension(f_1: number, f_2: number, f_3: number, a_1: number, a_2: number, a_3: number): number {
+        let self = this;
+        let x = log2(f_2 / f_1)
+        let y = log2(f_3 / f_2)
+        // # originally named v(greek nu)
+        let spl = a_1 * a_2 * a_3
+        return spl * Math.exp(-Math.pow(((y - x) / self.alpha), 2));
+    }
+}
+let models: { [key: string]: DisonanceModel } = {
+    'sethares1993': new Sethares1993(),
+    'vassilakis2001': new Vassilakis2001(),
+    'cook2002': new Cook2002(),
+    'cook2006': new Cook2006(),
+    'cook2009': new Cook2009(),
+}
 
-//     It also contains a model of tension of a triad.
-//     """
-//     beta_1 = -0.8
-//     beta_2 = -1.6
-//     beta_3 = 4.0
-//     alpha = 0.6
-
-//     def dissonance_pair(self, f_1, f_2, a_1, a_2):
-//         spl = a_1 * a_2
-//         # frequency ratio -> 12-TET semitone interval
-//         x = 12 * np.log2(f_2 / f_1)
-//         d = np.exp(self.beta_1 * x) - np.exp(self.beta_2 * x)
-//         return spl * self.beta_3 * d
-
-//     def triad_tension(self, f_1, f_2, f_3, a_1, a_2, a_3):
-//         x = np.log2(f_2 / f_1)
-//         y = np.log2(f_3 / f_2)
-//         # originally named v (greek nu)
-//         spl = a_1 * a_2 * a_3
-//         return spl * exp(-((y - x) / self.alpha)**2)
-
-// models = {
-//     'sethares1993': Sethares1993(),
-//     'vassilakis2001': Vassilakis2001(),
-//     'cook2002': Cook2002(),
-//     'cook2006': Cook2006(),
-//     'cook2009': Cook2009(),
-// }
-
-// def model_by_name(name):
-//     return models[name]
+export function model_by_name(name: string): DisonanceModel {
+    return models[name];
+}
