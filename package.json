@@ -1,0 +1,20 @@
+{
+  "name": "disonance",
+  "version": "1.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc && node build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^1.4.1",
+    "grunt-bump": "^0.8.0",
+    "tslint": "^6.1.3",
+    "typescript": "^4.3.4"
+  },
+  "dependencies": {}
+}
