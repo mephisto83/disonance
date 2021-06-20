@@ -1,12 +1,12 @@
 {
   "name": "disonance-js",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "publish": "npm publish --access public",
+    "pub": "npm publish --access public",
     "build": "npx tsc && grunt bump",
-    "release": "npm run build && npm run publish",
+    "release": "npm run build && npm run pub",
     "start": "tsc && node build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
